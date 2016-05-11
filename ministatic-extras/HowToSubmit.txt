@@ -1,0 +1,104 @@
+Your submission for Homework 4 should comprise two parts:
+
+1) A valid ".ast" file called "q1.ast" that represents your best
+attempt to document the 71 classes in the "ast" directory.  You will
+receive zero points for this part of the assignment if your "q1.ast"
+file is either missing or is not syntactically valid, as judged by
+the syntax checker for ".ast" files that was distributed as the
+sample solution for HW3, Task 2.  (Among other details, this means
+that the ".ast" file should not contain any method declarations.)
+Your submission will lose points if it does not include definitions
+for all of the classes in the "ast" directory, or if it includes
+definitions for classes that are not present in that folder.  In
+cases where the ".ast" format is not properly able to capture the
+high-level structure of the class, following the instructions in
+HW4-Static.txt, you should still make your best attempt to match the
+structure, and then add a quick comment to document the assumptions
+you made or the details that you omitted.
+
+Your ".ast" file should be uploaded to the dropbox marked for this
+purpose prior to the deadline.  Do not submit any other kind of file
+to this dropbox.  Remember: if the submitted file, as is, is not
+accepted by the syntax checker, then you will not receive a score
+for this part of the assignment!
+
+2) A "final report", presented as a single file, for Tasks 2, 3, and
+4 of this assignment that documents each of the changes that you've
+made, describes the rationale for those changes, and summarizes the
+thoughtful ways that you've tested your code to make sure that it is
+working correctly.  This write up may be submitted as either a plain
+text or a pdf document; no other formats can be accepted, so please
+DO NOT submit a file in .doc, .docx, .rtf, .odt, .zip, .dvi, .ps, or
+any other format except .txt or .pdf.  If this presents a difficulty
+for your, please contact the instructor at least 72 hours before the
+submission deadline to make special arrangements, for example, so
+that you can submit on paper instead of electronically.
+
+Your written document should satisfy the following criteria:
+
+- The document should be labelled with your name.
+
+- The sections of the document for each of Tasks 2, 3, and 4 should
+  be clearly labeled.
+
+- If the document is submitted in plain text format, it should be
+  formatted so that no lines are longer than 80 columns wide.
+
+- The document should be formatted in a way that makes it as easy to
+  read as possible: please pay attention to layout, structure, and
+  the use of appropriate font sizes.
+
+- The document should include relevant sections of code to show the
+  changes that you have made.  Code should be accompanied by text
+  that provides some context for the code and explains how it works.
+  If your code includes appropriate comments, then the amount of
+  additional text that you need will likely be quite low.
+  Nonetheless, you should think of this as a written document that
+  includes code, rather than just a plain code listing.
+
+- The document may include some small portions of code from the
+  materials that were supplied in support of this assignment, but
+  this should be done only to provide context for the changes that
+  you make, and you should strive to minimize the amount of
+  redundant code that you include.  Specifically, you will lose
+  points if you include large sections of program text that are
+  taken with little or no change from the supplied code.
+
+- The document will be the only resource that we have to evaluate
+  the work that you have done, so it should be a complete
+  description of your work.  If, for example, you add something to
+  the lexer, then you need to include specific details of those
+  changes; if you don't do this, then you might still receive
+  partial credit for realizing that some changes were needed in the
+  lexer, but we won't have enough information to know that you made
+  the right changes.
+
+- The document should include a description of the "thoughtful
+  testing" that you have used to check that your solution is working
+  correctly.  As explained in the first set of slide for this class,
+  the expectations for "thoughtful testing" are that you explain
+  your rationale for the tests that you use:
+
+    - What aspects of your solution do the tests exercise?
+    - Are there important edge cases?
+    - How did you determine what the correct behavior/result
+      should be?
+
+  Don’t show the output from a test without commentary to explain
+  why it is the correct or expected output.
+
+  Testing is important, but this is not intended to be an onerous
+  requirement for your report: Aim for quality rather than quantity!
+
+The sample solutions for Exercise 5 in the Week 9 lab exercises may
+be useful as an example of a document written in the style described
+above.
+
+Your final report should be uploaded to the dropbox marked for this
+purpose prior to the deadline.  Do not submit any other kind of file
+to this dropbox.
+
+Please remember that there is no possibility for an extension to the
+homework deadline.  If you are unable to submit a complete solution
+by that time, you can still receive partial credit for an incomplete
+solution.

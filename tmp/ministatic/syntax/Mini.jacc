@@ -1,0 +1,162 @@
+%package   syntax
+%class     MainParser
+%interface MiniTokens
+%extends   Phase
+
+%{
+import compiler.*;
+import java.io.*;
+import ast.*;
+%}
+
+%semantic Object
+
+%token ELSE EQL FALSE GTE IDENT IF INT INTLIT
+%token LAND LOR LTE NEQ PRINT TRUE WHILE BOOLEAN
+
+%type <Position> '+' '-' '*' '/' '!'
+%type <Position> '~' '&' '^' '|'
+%type <Position> '<' '>' LTE GTE NEQ EQL
+%type <Position> TRUE FALSE LAND LOR
+%type <Position> ';' WHILE IF ELSE PRINT '='
+%type <Block>    stmts block
+%type <Stmt>     stmt
+%type <InitStmt> initStmt
+%type <StepStmt> stepStmt
+%type <VarDecl>  varDecl
+%type <VarIntro> varIntro
+%type <Type>     type
+%type <Expr>     test expr lor land bor bxor band
+%type <Expr>     eql  rel  add mult unary primary
+%type <Id>       IDENT
+%type <IntLit>   INTLIT
+
+%%
+
+program : stmts                         { program = $1; }
+        ;
+
+// -- Statements -------------------------------------------------------
+
+stmts   : stmts stmt                    { $1.addStmt($2); $$ = $1; }
+        | /* empty */                   { $$ = new Block(); }
+        ;
+
+stmt    : initStmt ';'                  { $$ = $1; }
+        | block                         { $$ = $1; }
+        | WHILE test stmt               { $$ = new While($1, $2, $3); }
+        | IF test stmt ELSE stmt        { $$ = new If($1, $2, $3, $5); }
+        | IF test stmt                  { $$ = new If($1, $2, $3, new Empty()); }
+        | PRINT expr ';'                { $$ = new Print($1, $2); }
+        ;
+
+initStmt: varDecl                       { $$ = $1; }
+        | stepStmt                      { $$ = $1; }
+        ;
+
+stepStmt: /* empty */                   { $$ = new Empty(); }
+        | expr                          { $$ = new ExprStmt($1); }
+        ;
+
+block   : '{' stmts '}'                 { $$ = $2; }
+        ;
+
+test    : '(' expr ')'                  { $$ = $2; }
+        ;
+
+varDecl : type varIntro                 { $$ = new VarDecl($1, $2); }
+        | varDecl ',' varIntro          { $1.addIntro($3); $$ = $1; }
+        ;
+
+varIntro: IDENT                         { $$ = new VarIntro($1); }
+        | IDENT '=' expr                { $$ = new InitVarIntro($1, $3); }
+        ;
+
+// -- Types ------------------------------------------------------------
+
+type    : INT                           { $$ = Type.INT; }
+        | BOOLEAN                       { $$ = Type.BOOLEAN; }
+        ;
+
+// -- Expressions ------------------------------------------------------
+
+expr    : IDENT '=' expr                { $$ = new Assign($2, $1, $3); }
+        | lor                           { $$ = $1; }
+        ;
+
+lor     : lor LOR land                  { $$ = new LOr($2, $1, $3); }
+        | land                          { $$ = $1; }
+        ;
+
+land    : land LAND bor                 { $$ = new LAnd($2, $1, $3); }
+        | bor                           { $$ = $1; }
+        ;
+
+bor     : bor '|' bxor                  { $$ = new BOr($2, $1, $3); }
+        | bxor                          { $$ = $1; }
+        ;
+
+bxor    : bxor '^' band                 { $$ = new BXor($2, $1, $3); }
+        | band                          { $$ = $1; }
+        ;
+
+band    : band '&' eql                  { $$ = new BAnd($2, $1, $3); }
+        | eql                           { $$ = $1; }
+        ;
+
+eql     : eql NEQ rel                   { $$ = new Neq($2, $1, $3); }
+        | eql EQL rel                   { $$ = new Eql($2, $1, $3); }
+        | rel                           { $$ = $1; }
+        ;
+
+rel     : rel '<' add                   { $$ = new Lt($2, $1, $3); }
+        | rel '>' add                   { $$ = new Gt($2, $1, $3); }
+        | rel LTE add                   { $$ = new Lte($2, $1, $3); }
+        | rel GTE add                   { $$ = new Gte($2, $1, $3); }
+        | add                           { $$ = $1; }
+        ;
+
+add     : add '+' mult                  { $$ = new Add($2, $1, $3); }
+        | add '-' mult                  { $$ = new Sub($2, $1, $3); }
+        | mult                          { $$ = $1; }
+        ;
+
+mult    : mult '*' unary                { $$ = new Mul($2, $1, $3); }
+        | mult '/' unary                { $$ = new Div($2, $1, $3); }
+        | unary                         { $$ = $1; }
+        ;
+
+unary   : '-' unary                     { $$ = new UMinus($1, $2); }
+        | '+' unary                     { $$ = new UPlus($1, $2); }
+        | '!' unary                     { $$ = new LNot($1, $2); }
+        | '~' unary                     { $$ = new BNot($1, $2); }
+        | primary                       { $$ = $1; }
+        ;
+
+primary : INTLIT                        { $$ = $1; }
+        | TRUE                          { $$ = new BoolLit($1, true); }
+        | FALSE                         { $$ = new BoolLit($1, false); }
+        | IDENT                         { $$ = $1; }
+        | '(' expr ')'                  { $$ = $2; }
+        ;
+
+%%
+
+    private MiniLexer lexer;
+    private Block     program;
+
+    public MainParser(Handler handler, MiniLexer lexer) {
+      super(handler);
+      this.lexer = lexer;
+      lexer.nextToken();
+      parse();
+    }
+
+    public Stmt getProgram() {
+      return program;
+    }
+
+    private void yyerror(String msg) {
+      report(new Failure(lexer.getPos(), msg));
+    }
+

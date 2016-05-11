@@ -1,0 +1,2 @@
+boolean i=true;
+for (;i;i);

@@ -1,0 +1,172 @@
+/**Brett Chafin's Hw4 Task1 AST file**/
+ 
+
+class TestDot()
+
+class TestDotEnv()
+
+class TestHTML()
+
+class TestIndent()
+
+class TestInit()
+
+class TestScoping()
+
+class TestText()
+
+class TestTyping()
+
+
+
+class TextOutput(java.io.PrintStream out) {
+
+	class HTMLOutput(java.io.PrintStream out)
+}
+
+class DotOutput(String filename) //Alt Constructor: (java.io.PrintStream out)
+
+class DotEnvOutput(String filename)
+
+class IndentOutput(java.io.PrintStream out)
+
+
+
+class VarSet(Env head, VarSet rest)
+
+class IdList(Id head, IdList rest)
+
+class Env(Id id, Type type, Env rest)
+
+class VarIntro(Id id) {
+
+	class InitVarIntro(Id id, Expr expr)
+}
+
+//Phase class not in ast Directory, assumed to be abstract
+abstract class Phase {
+
+	class TypeAnalysis(Handler handler)
+
+	class ScopeAnalysis(Handler handler)
+
+	class InitAnalysis(Handler handler)
+}
+
+
+
+abstract class Type {
+
+	class PrimType(String typename)
+	
+	class ArrayType (Type elem)
+}
+
+
+
+abstract class Stmt(){
+
+	class Block()
+
+	abstract class PosStmt(Posision pos) {
+	
+		class While(Position pos, Expr test, Stmt body)
+	
+		class Print(Posistion pos, Expr exp)
+		
+		class If(Posistion pos, Expr test, Stmt ifTrue, Stmt ifFalse)
+
+		class For(Posistion pos, InitStmt first, StepStmt test, StepStmt step, Stmt body)
+	}		
+
+	abstract class InitStmt() {
+	
+		class VarDecl(Type type, VarIntro intro)
+		
+		abstract class StepStmt() {
+		
+			class ExprStmt(Expr expr)
+		}
+	}
+}
+
+
+
+
+abstract class Expr(Posistion pos) {
+
+	class BoolLit(Posistion pos, boolean value)
+
+	class Assign(Posistion pos, Id lhs, Expr rhs)
+
+	class NewArray(Posistion pos, Type type, Expr size)
+
+	class IntLit(Posistion pos, int num)
+
+	class ArrayAcess(Posistion pos, Expr arr, Expr idx) {
+
+		class ArrayAssign(Posisiton pos, Expr arr, Expr idx, Expr rhs) 
+	}
+
+	abstract class UnExpr(Position pos, Expr exp) {
+
+		abstract class UnArithExpr(Posistion pos, Expr exp) {
+
+			class UPlus(Posistion pos, Expr exp)
+
+			class UMinus(Posistion pos, Expr exp)
+		}
+
+		class LNot(Posistion pos, Expr exp)
+
+		class BNot(Posistion pos, Expr exp)
+	}		
+
+	abstract class BinExpr(Posistion pos, Expr left, Expr right) {
+
+		abstract class BinLogicExpr(Position pos, Expr left, Expr right) {
+
+			class LOr(Posision pos, Expr left, Expr right)
+
+			class LAnd(Posistion pos, Expr left, Expr right)
+		}
+
+		abstract class BinEqualityExpr(Posistion pos, Expr left, Expr right) {
+
+			class Eql(Posistion pos, Expr left, Expr right)
+
+			class Neq(Posisiton pos, Expr left, Expr right)
+		}
+		
+		abstract class BinCompExpr(Posistion pos, Expr left, Expr right) {
+
+			class Lt(Posistion pos, Expr left, Expr right)
+
+			class Lte(Posistion pos, Expr left, Expr right)
+
+			class Gt(Postion ps, Expr left, Expr right)
+
+			class Gte(Position pos, Expr left, Expr right)
+		}
+
+		abstract class BinBitwiseExpr(Posistino pos, Expr left, Expr right) {
+
+			class BXor(Posistion pos, Expr left, Expr right)
+
+			class BOr(Posistion pos, Expr left, Expr right)
+
+			class BAnd(Posistion pos, Expr left, Expr right)
+		}		
+
+		abstract class BinArithExpr(Posistion pos, Expr left, Expr Right) {
+
+			class Div(Posistion pos, Expr left, Expr right) 
+	
+			class Add(Posistion pos, Expr left, Expr right)
+
+			class Mul(Posisiton pos, Expr left, Expr right)
+
+			class Sub(Posisiton pos, Expr left, Expr right) 
+		}
+	}
+}

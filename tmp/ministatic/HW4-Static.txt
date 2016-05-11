@@ -1,0 +1,294 @@
+------------------------------------------------------------------------
+CS 321 Languages and Compiler Design I, Winter 2016
+
+Assignment 4, "Static"
+------------------------------------------------------------------------
+
+Congratulations! Thanks to your keen interest and enthusiasm for
+compiler construction, you have been awarded an (unpaid) internship to
+help with the construction of an exciting new static analysis tool,
+referred to below as "ministatic", that is being developed by the good
+folks at MiniSoft, Inc.
+
+Actually, what really happened is that the person who did the original
+development work on ministatic got hired away to work on a secret
+project at a major tech company that needed somebody with compiler
+expertise. But MiniSoft still needs somebody to finish ministatic, and
+they're working to a tight deadline: It all needs to be wrapped up no
+later than 10pm on Friday, March 11 (and the CEO of MiniSoft has made it
+clear that there absolutely won't be any opportunities for extensions
+beyond that).
+
+That's where you come in!
+
+Presumably you've already found and unpacked the zip file containing the
+most recent copy of your predecessor's work that the sysadmins at
+MiniSoft were able to find. After all, *this* very file that you are
+reading now is part of that collection! There are quite a lot of files
+here: one called Compiler.java in the top level directory, and then lots
+more in subdirectories with names like "ast" and "compiler". In fact,
+if I didn't know better, I'd say that this looks a lot like one of the
+versions of the famous minitour compiler, probably somewhere around
+Version 18, wrapping up the front-end. It's probably a fair bet to
+assume that prior knowledge of minitour might well be useful while
+you're working on this project. Feel free to review the documentation
+for that if you still have a copy. (And, if not, I'm pretty sure you
+can still find it in the strangely labeled room just down the hall ...
+you know, the one called "Course Content, Week 1".)
+
+In the rest of this document, you'll find some specifics of what needs
+to be done before the deadline. It would be great if you can get it all
+done, but we'll still give you a partial credit towards your $0 salary
+if you only complete some of the tasks. (As an added incentive,
+MiniSoft has promised that they will double the amount they pay you next
+time if you're successful with this project ... what a deal, eh?)
+
+You seem like a friendly person---somebody that I'd enjoy interacting
+with, for example---so let me know if you get stuck somewhere along the
+way ... maybe I'll be able to help out!
+
+
+Task 1: ASTGen lives on!
+------------------------
+Ok, let's get down to business. If you're going to work on this
+project, you're obviously going to need to spend some time familiarizing
+yourself with the code. Take a look in the "ast" subdirectory; there
+are 71 Java source files in just that one directory alone! Clearly it's
+going to take a bit of time to understand all the details there---I
+wouldn't want anyone to underestimate the task---but perhaps there is a
+good way to get a high-level mental model that will at least help you to
+find your way around the code more quickly?
+
+In case you didn't already know, MiniSoft is beginning to standardize on
+the use of an exciting new tool called ASTGen, which provides a compact
+notation for describing Java class hierarchies. (You'll probably have
+seen a recent, two part serialization on this very topic called HW3.)
+
+Here's a good idea: as you work through these classes, construct a
+description of all the classes in the "ast" subdirectory in a ".ast"
+format text file. Try to match the descriptions in your ".ast" file to
+the individual Java files as closely as possible, but don't be surprised
+if there are some places where things don't quite match up. For
+example, I notice that the DotOutput class has two constructors, while
+ASTGen only allows for a single constructor. In cases like that, make
+your best attempt to match the structure, and add a quick comment to
+document the assumptions you made or the details that you omitted. Who
+knows, maybe this will all be good feedback for the people who make the
+next version of ASTGen!
+
+I expect the overall structure is very similar in many respects to
+things that you've seen before, but I'm pretty sure that there will also
+be some differences ...
+
+Of course, there are already multiple versions of ASTGen. You shouldn't
+worry about including any method descriptions in your ".ast" file, but
+it would be good to make sure that it matches the official grammar and
+can be parseed without error by the reference ASTGen syntax checker
+(known, in technical circles, as hw3_part1_task2.sample_solution).
+
+Task 2: FOR goodness sake, this is loopy!
+-----------------------------------------
+Programming languages like C, C++, and Java all allow programmers to
+write loop statements of the following form:
+
+  for (first; test; step) body
+
+where first is either a variable declaration or an expression; test is a
+boolean-valued expression; step is an arbitrary expression; and body is
+a statement. (If a programmer wants to use multiple statements inside a
+loop body, they can always wrap them up inside a block.)  An interesting
+detail is that any combination of the first, test, and step components
+of a "for" loop can be omitted, as in the following examples:
+
+  for (int i=0; i<10; i=i+1) print i;   // print 0, 1, ..., 9
+  for (int i=0; i<10; )      i=i+1;     // print nothing, but terminate
+  for (int i=0; ; i=i+1)     print i;   // print 0, 1, ... never terminate
+  for (;;)                   print 0;   // print 0, 0, ... never terminate
+  for (i=1; i<10; i=i*2)     print i;   // print 1, 2, 4, 8
+
+That last example looks incomplete ... I don't think it would actually
+work unless the variable "i" had actually been defined earlier in the
+program.
+
+You probably noticed that there is a class called "For.java" in the
+"ast" directory, which looks like it was intended to be used as abstract
+syntax for a "for" loop construct just like this. What luck! But it also
+looks like your predecessor left before completing the implementation:
+For one thing, it doesn't look like there is any support for this
+construct in the "MiniLexer" and "MiniParser" that you probably spotted
+over in the "syntax" folder. For another, there are a few ominous "TODO"
+labels in parts of the For.java code that will need to be filled in.
+
+But I'm confident that you will be able to take care of these details:
+
+- The MiniLexer is handwritten, but doesn't appear to use any coding
+  tricks that you haven't already seen.
+
+- The parser is generated from a file called "Mini.jacc", also in the
+  syntax folder, so it looks like this might be a good opportunity for
+  some more hands on time with jacc ... again, I don't see anything too
+  unusual here, although there are a few declarations of the form
+
+  %type <TYPENAME> symbol1 ... symbolN
+
+  that might not be immediately familiar: these just specify that the
+  values on the parsers workspace corresponding to each of the listed
+  symbols (which may be either terminals or nonterminals) must have the
+  specified type, TYPENAME. Most of the terminal symbols, for example,
+  have a Position as their type, which makes it possible for the parser
+  to store position information in the generated abstract syntax tree
+  for later use if an error is detected. But the INTLIT token seems to
+  produce an IntLit value, the IDENT token produces an Id, and there are
+  lots of nonterminals corresponding to different forms of expression,
+  all of which construct an abstract syntax tree of type Expr.
+
+- You can probably tackle the various TODO sections one at a time,
+  constructing some simple programs of your own design at each step to
+  help with testing. And if you're not exactly sure what each method
+  should do, you can probably get some good ideas by looking at detail
+  of how they are implemented for other, perhaps similar abstract syntax
+  constructs.
+
+Some parts of this might turn out to be easier than you might expect at
+first glance, while other parts might be harder and require more code.
+In addition to whatever changes you make to the code, BE SURE to write
+down a narrative that: documents each of the changes that you've made,
+describes the rationale for those changes, and summarizes the thoughtful
+ways that you've tested your code to make sure that it is working
+correctly. MiniSoft has a policy of tracking this kind of information
+for all of their active projects so that it can be passed on to future
+developers, so you can be sure they will be expecting the same kind of
+details from you here as well.
+
+Task 3: Array of light!
+-----------------------
+There's only so much that a programmer can do with just the int and
+boolean types. Mightn't it be useful if there were a way to group
+multiple values into a single object? One simple way to do this in many
+popular languages is to use an array. For example:
+
+- We could write T[] for a type of arrays, each of whose elements is T.
+  This should work for any type T, so we could use int[] for arrays of
+  integers, boolean[] for arrays of booleans, but also int[][] for
+  arrays of arrays of integers, and so on.
+
+- If we wanted to construct a new array, we could use an expression of
+  the form "new T[size]" where T is a type and size is an integer valued
+  expression that will specify the number of elements in the new array
+  when the program is executed. It's probably safe to assume that all
+  of the array elements are initialized to some appropriate value when
+  the array is created. We can hope that the size expression won't
+  evaluate to a negative number ... still, that would be a detail of the
+  dynamic semantics, so not something that we need to worry about during
+  your current internship.
+
+- If we wanted to access the ith element of an array a, then we could
+  just write a[i]. That looks simple enough, but don't overlook the
+  possibility that a and i could be replaced with arbitrary expressions.
+  For example, something like a[j][i+1] is a reference to the (i+1)th
+  element in the array a[j]. So you can see that it would be wrong to
+  assume that either the array part or the index part of an array access
+  is just a simple identifier. Some people might worry about
+  the possibility of providing an illegal/out of bounds array index in
+  an expression like this. We'll make a note, and ask some of the Spring
+  interns to think about this.
+
+- Finally, if we wanted to assign a value to a particular slot in an
+  array, then it would seem natural to write something like a[i] = e
+  where a, i, and e are expressions of the appropriate types.
+
+It looks like your predecessor on this project was thinking along very
+similar lines because there are four classes in the "ast" folder (called
+ArrayType, NewArray, ArrayAccess, and ArrayAssign) that seem to match
+directly with the four bullets above. Once again, there doesn't appear
+to be any support for these constructs in the lexer or the parser, and
+there are some TODOs in the bodies of the classes too. But I have
+confidence: you've got this ... or you will, after you've spent some
+time looking at the code and studying how these details are handled for
+some related constructs.
+
+That said, if you'll indulge me just a little more, I would suggest that
+one of your *primary* concerns here will be in finding a good way to
+integrate the various array constructs into the grammar in Mini.jacc.
+In particular, it looks like the *primary* nonterminal will be
+particularly useful here (it covers all the cases of things that you
+might reasonably expect to find immediately before the opening square
+bracket of an array access, for example). At the same time, it looks
+like the current Mini grammar gives assignment a very low precedence, so
+you should probably do the same thing for array assignments too.
+
+And don't forget that MiniSoft policy mentioned above: your managers
+will be looking forward to reading your narrative that describes and
+explains the changes you've made and summarizes the steps that you took
+to test your code.
+
+Task 4: I defi(n)e you to use me!
+---------------------------------
+There's one last task that you might be able to tackle before your
+internship is up. We already have code that makes sure that every
+variable in the program has been initialized before it is used. But what
+if we define a variable and then never get to use it, as in the
+following programs:
+
+  d1.mini:     int x=2; int x=3; print x;  // doesn't use first x
+  d2.mini:     int x=2; int y=3; print x;  // doesn't use y
+  d3.mini:     int x=2; print 3;           // doesn't use x
+
+It would be good if ministatic could identify problems like these
+automatically, each of which might be an indication of a mistake in the
+original source program.
+
+To keep things simple, let's not worry about all of the infrastructure
+and mechanisms that are used to generate and handle Failure or Warning
+messages elsewhere in the supplied code. Instead, let's just do a little
+bit of prototyping: After all of the other steps in Compiler.java have
+been executed and the string "Static analysis did not detect any errors"
+has been displayed, add some code that will print out a list of lines of
+the form: "(col, row) name" for each variable that is defined but not
+used in your program. The "(col, row)" coordinates should specify the
+column and row number of the point in the source code where the unused
+variable is defined, and "name" should just be the name of the variable
+defined at that point. There should be one separate line for each unused
+variable, listed in order of appearance in the original source code.
+(And if there are no unused variables, then you should not output any
+additional lines or text after the "Static analysis ..." message. It
+might be useful to point out that the coordString() string method in the
+Position class already generates strings of the required "(col, row)"
+format.
+
+For the three examples above, you might expect to see output that looks
+something like the following:
+
+  output for d1.mini:   (5, 1) x
+  output for d2.mini:   (14, 1) y
+  output for d3.mini:   (5, 1) x
+
+If you get these results, good, but don't forget to test your solution
+on a broader range of examples. Or, if you get different results, make
+sure that you're confident in your results ... perhaps I made a mistake
+... but again don't forget to test on a larger collection of examples.
+
+And of course there's still that pesky MiniSoft policy that requires a
+narrative description to explain what you've done, and how you tested
+it. We all know that some people enjoy coding much more than they enjoy
+writing documentation. (Some people might even find it odd to see the
+two words "enjoy" and "documentation" in the same sentence.)  But good
+documentation can be very useful (assuming that you can persuade people
+to read it), so don't skip it (or skimp on it) here!
+
+Timeline:
+---------
+As mentioned previously, you need to be done with all of this (or, at
+least, as much as you can get done) by 10pm on March 11. The MiniSoft
+sysadmins are still trying to see if they can find some of the test
+cases that your predecessor created, and they have committed to
+forwarding those to, along with details of how you should prepare and
+submit your final report, at 10pm on March 4 (exactly a week before the
+main deadline). But don't expect anything terribly different from what
+is described and/or hinted at above, and don't be tempted to wait until
+then (or worse, even later) before you get started ... I have a feeling
+that the week of March 4 might be very busy, so anything you can get
+done before then is probably a very good investment of your time, and a
+sound strategy for reducing stress!
+
+------------------------------------------------------------------------

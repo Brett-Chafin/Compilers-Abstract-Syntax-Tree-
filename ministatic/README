@@ -1,0 +1,29 @@
+Welcome!  Despite the name of this file, a surprising
+number of people may not remember to read it :-)
+
+Simple instructions for compiling and running ministatic:
+
+In the ministatic directory:
+
+0) jacc syntax/Mini.jacc
+   (builds syntax/MainParser.java and syntax/MiniTokens.java)
+
+1) javac Compiler.java ast/*.java
+   (builds Compiler.java and all the minitour Test*.java
+   programs in the ast folder)
+
+2) java Compiler test
+   (runs the ministatic program---called Compiler for
+   compatibility with the minitour---on the code in
+   test.mini).
+
+If you don't have jacc installed and you are using the
+Linuxlab, you are welcome to use "~mpj/jacc" instead.
+
+If you need a refresher on minitour grammar, at least
+for the features that are not added as part of this
+assignment, then check out the original minitour
+documentation, but be aware that this code does include
+a few changes ... as an alternative resource, you might
+also want to review the "official" grammar as it is
+presented in syntax/Mini.jacc.

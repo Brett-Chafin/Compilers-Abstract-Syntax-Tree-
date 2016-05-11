@@ -1,0 +1,139 @@
+//--------------------------------------------------------------------
+// CS321 Languages and Compiler Design I, Winter 2016
+//
+// Homework 3, Task 2, Notes and Sample Solution (ASTGen.jj)
+//
+// This javacc source file provides a syntax checker for the ".ast"
+// files that are used in Homework 3.  This file meets the
+// requirements for Task 2 of the HW3 assignment.  You may use this
+// file as a starting point for your work on Tasks 3 and 4.  However,
+// most people will probably be better off sticking with their own,
+// more familiar code, and just reviewing the comments and code
+// fragments below for tips and small details that they might have
+// missed.
+// 
+//--------------------------------------------------------------------
+
+PARSER_BEGIN(ASTGen)
+
+public class ASTGen {
+  public static void main(String args[]) throws ParseException {
+    new ASTGen(System.in);  // Read from standard input
+    Top();
+    System.out.println("Syntax is valid");
+  }
+}
+
+PARSER_END(ASTGen)
+
+//- Define the syntax of a simple language for AST hierarchies: ------
+
+// NOTE: this grammar is presented in top-down fashion, beginning
+// with the start symbol for the grammar.  Some people may prefer
+// to approach this in bottom-up order, starting with the lexical
+// rules at the end of the file and working back up to this point
+// from there.  Your choice!
+
+// A ".ast" file is a sequence of zero or more classes, followed
+// by an end of file marker:
+
+void Top() : {} {
+  (Class())* <EOF>
+}
+
+// Each class has an optional "abstract" modifier, an identifier that
+// names the class, an optional list of fields/constructor arguments,
+// and an optional list of zero or more subclasses:
+
+void Class() : {} { // Using multiple lines for better readability!
+  ("abstract")?
+     "class" Id()
+     ("(" Args() ")")?
+     ("{" (Class())* "}")?
+}
+
+// Constructor arguments are specified by a list of zero or more
+// comma-separated elements.  In the following grammar, the first
+// Arg() call matches the first argument, with the ("," Arg())*
+// portion matching and additional arguments, each prefixed by a
+// comma.  The whole thing is wrapped in (...)? to allow for an
+// empty argument list:
+
+void Args() : {} {
+  (Arg() ("," Arg())*)?
+}
+
+// Individual arguments begin with an optional "visbility" modifier
+// (one of the strings "public", "protected", or "private"), a type,
+// and an identifier that specifies the argument name:
+
+void Arg() : {} {
+  ("public" | "protected" | "private")? Type() Id()
+}
+
+// Types can be specified by a grammar of the form:
+//
+//   Type -> NameType
+//   Type -> Type "[" "]"
+//
+// This grammar is left recursive, so it can't be used directly, but
+// it is easy to rewrite the grammar without left recursion: every
+// type begins with an NameType followed by zero or more sets of
+// matching square brackets, "[" "]":
+
+void Type() : {} {
+  NameType() ("[" "]")*
+}
+
+// Note that we use two distinct tokens here rather than a single
+// "[]"; this allows ".ast" files to include spaces, comments, or
+// other items from our SKIP rules between the open and close
+// brackets, without any additional effort on our part.
+
+// A NameType is a sequence of identifiers, separated by periods.
+// We include the rules for recognizing NameTypes in a parsing
+// function rather than trying to capture this in a single regular
+// expression token.  This is important because it means (1) that
+// source programs may include spaces, line breaks, comments or
+// other SKIP elements in NameTypes without any additional work; and
+// (2) that we will be able to store and manipulate the individual
+// parts of a NameType within an abstract syntax tree.  Note that
+// our grammar for describing a list of period-separated identifiers
+// follows exactly the same patterns as we used in the code above
+// for parsing lists of comma-separated arguments.
+
+void NameType() : {} {
+  Id() ("." Id())*
+}
+
+// For convenience, we use the following parsing function to
+// recognize a single identifier.  This isn't particularly important
+// here, but it will be useful when we come to add semantic actions:
+// the logic for reading a token and returning its image can be
+// written here just once so that it doesn't need to repeated in
+// other parts of the code.
+
+void Id() : {} {
+  <IDENT>
+}
+
+//-- Define the lexical structure of an input language: --------------
+
+// Input elements that should be ignored/skipped:
+SKIP : {
+  " "
+| "\t"
+| "\n"
+| "\r"
+| <"//" (~["\n","\r"])* ("\n" | "\r" | "\r\n")>
+| <"/*" (~["*"])* ("*" | ~["*","/"] (~["*"])* "*")* "/">
+}
+
+// Lexemes that should be reported as valid tokens:
+TOKEN : {
+  <IDENT : <START> (<PART>)*>
+| <#START : ["a"-"z","A"-"Z"]>
+| <#PART  : <START> | ["0"-"9","_"]>
+}
+
+//--------------------------------------------------------------------

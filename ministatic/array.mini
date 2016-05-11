@@ -1,0 +1,7 @@
+
+//int[] j;
+boolean[] b;
+
+//int i = 5;
+
+int[] j  = new int[3]; 

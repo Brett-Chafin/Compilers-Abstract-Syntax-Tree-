@@ -1,0 +1,6 @@
+The files 00.mini, 01.mini, ..., 29.mini in this directory are simple
+examples of mini files that may be useful in your testing.  Please
+note that some of these files may be valid and others may be invalid:
+it is up to you to determine which is which, and, if the latter, why
+the program should be rejected.
+

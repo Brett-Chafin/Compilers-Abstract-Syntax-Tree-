@@ -1,0 +1,2 @@
+boolean[][][] b = new boolean[][][0];
+while (b[1][2][3]) print 0;
